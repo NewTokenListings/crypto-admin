@@ -1,47 +1,35 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-import Dashboard from "./pages/admin/Dashboard.jsx";
-import Users from "./pages/admin/Users.jsx";
-import Transactions from "./pages/admin/Transactions.jsx";
-import Login from "./pages/admin/Login.jsx";
-import AuthDebug from "./pages/admin/AuthDebug.jsx";
-
+// Context & Components
+import { useAuth } from "./context/AuthContext.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
+// Pages
+import Login from "./pages/admin/Login.jsx";
+import Dashboard from "./pages/admin/Dashboard.jsx";
+import Users from "./pages/admin/Users.jsx";
+import Transactions from "./pages/admin/Transactions.jsx";
+import AuthDebug from "./pages/admin/AuthDebug.jsx";
+import CategoriesPage from "./pages/admin/Categories.jsx"; // ✅ new
+
 function App() {
-  console.log("App rendering...");
+  const { user } = useAuth();
 
   return (
     <ErrorBoundary>
       <Routes>
-        {/* Public landing page */}
-        <Route
-          path="/"
-          element={
-            <div className="flex flex-col items-center justify-center h-screen">
-              <h1 className="text-3xl">🚀 Coming Soon</h1>
-              <p className="mt-4 text-gray-600">
-                We are building New Token Listing website showcasing the newest tokens.
-              </p>
-              <a
-                href="/admin/login"
-                className="mt-6 text-blue-500 underline"
-              >
-                Admin Login
-              </a>
-            </div>
-          }
-        />
+        {/* Public homepage */}
+        <Route path="/" element={<div className="p-8 text-center">🚀 Coming soon...</div>} />
 
-        {/* Admin routes */}
+        {/* Admin login */}
         <Route path="/admin/login" element={<Login />} />
+
+        {/* Debug auth session */}
         <Route path="/admin/debug" element={<AuthDebug />} />
 
-        {/* Redirect /admin → /admin/dashboard */}
-        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-
+        {/* Protected admin routes */}
         <Route
           path="/admin/dashboard"
           element={
@@ -67,8 +55,21 @@ function App() {
           }
         />
 
-        {/* Catch-all: redirect unknown paths to home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* ✅ New Categories tab */}
+        <Route
+          path="/admin/categories"
+          element={
+            <ProtectedRoute>
+              <CategoriesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback */}
+        <Route
+          path="*"
+          element={<div className="p-8 text-center">404 - Page not found</div>}
+        />
       </Routes>
     </ErrorBoundary>
   );
