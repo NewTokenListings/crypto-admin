@@ -1,37 +1,61 @@
+import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Categories from "./pages/admin/Categories.jsx";
+import ComingSoon from "./pages/ComingSoon.jsx";
 import Login from "./pages/admin/Login.jsx";
-import AuthDebug from "./pages/admin/AuthDebug.jsx";
+import Dashboard from "./pages/admin/Dashboard.jsx";
+import Users from "./pages/admin/Users.jsx";
+import Transactions from "./pages/admin/Transactions.jsx";
+import Categories from "./pages/admin/Categories.jsx";   // ✅ NEW
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 function App() {
   return (
-    <Routes>
-      {/* Public route */}
-      <Route path="/admin/login" element={<Login />} />
+    <ErrorBoundary>
+      <Routes>
+        {/* Public route */}
+        <Route path="/" element={<ComingSoon />} />
 
-      {/* Protected Admin Routes */}
-      <Route
-        path="/admin/categories"
-        element={
-          <ProtectedRoute>
-            <Categories />
-          </ProtectedRoute>
-        }
-      />
+        {/* Auth routes */}
+        <Route path="/admin/login" element={<Login />} />
 
-      <Route
-        path="/admin/debug"
-        element={
-          <ProtectedRoute>
-            <AuthDebug />
-          </ProtectedRoute>
-        }
-      />
+        {/* Protected routes */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <Users />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/transactions"
+          element={
+            <ProtectedRoute>
+              <Transactions />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* fallback */}
-      <Route path="*" element={<div>🚀 Coming soon...</div>} />
-    </Routes>
+        {/* ✅ NEW categories route */}
+        <Route
+          path="/admin/categories"
+          element={
+            <ProtectedRoute>
+              <Categories />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </ErrorBoundary>
   );
 }
 
