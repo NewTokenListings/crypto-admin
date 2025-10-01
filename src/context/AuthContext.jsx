@@ -1,41 +1,71 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../supabaseClient.js";
 
-const AuthContext = createContext()
+const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(null)
-  const [initializing, setInitializing] = useState(true)
+  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    let mounted = true
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return
-      setSession(data.session)
-      setInitializing(false)
-    })
+    // Get the current session on load
+    const getSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session);
+      setUser(data.session?.user ?? null);
+      setInitializing(false);
+    };
+    getSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
+    // Listen for changes
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+      }
+    );
 
     return () => {
-      mounted = false
-      subscription.unsubscribe()
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // 👇 If user comes back with #access_token in URL (OAuth flow),
+  // clean it up and redirect into /admin/categories
+  useEffect(() => {
+    if (window.location.hash.includes("access_token")) {
+      const cleanUrl = window.location.origin + "/admin/categories";
+      window.history.replaceState({}, document.title, cleanUrl);
     }
-  }, [])
+  }, []);
+
+  const loginWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/admin/categories`
+      }
+    });
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+  };
 
   const value = {
+    user,
     session,
-    user: session?.user ?? null,
-    signIn: (opts) => supabase.auth.signInWithPassword(opts),
-    signOut: () => supabase.auth.signOut(),
     initializing,
-  }
+    loginWithGoogle,
+    logout,
+  };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  return useContext(AuthContext)
+  return useContext(AuthContext);
 }
