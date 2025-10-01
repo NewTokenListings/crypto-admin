@@ -1,24 +1,34 @@
+import { useAuth } from "../../context/AuthContext";
+
 export default function Dashboard() {
+  const { user, signOut } = useAuth();
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Welcome 👋</h1>
-      <p className="text-gray-600">
-        This is your admin dashboard. Use the sidebar to navigate to Users and Transactions.
-      </p>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-2xl border bg-white p-4">
-          <div className="text-sm text-gray-500">Users</div>
-          <div className="text-2xl font-bold">—</div>
-        </div>
-        <div className="rounded-2xl border bg-white p-4">
-          <div className="text-sm text-gray-500">Transactions</div>
-          <div className="text-2xl font-bold">—</div>
-        </div>
-        <div className="rounded-2xl border bg-white p-4">
-          <div className="text-sm text-gray-500">Status</div>
-          <div className="text-2xl font-bold">OK</div>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
+      <div className="w-full max-w-lg bg-white shadow rounded-2xl p-6 text-center">
+        <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+        {user ? (
+          <>
+            <img
+              src={user.user_metadata?.avatar_url}
+              alt="avatar"
+              className="w-16 h-16 rounded-full mx-auto mb-4"
+            />
+            <p className="mb-2">
+              Welcome, <strong>{user.user_metadata?.full_name}</strong>
+            </p>
+            <p className="mb-4 text-gray-600">{user.email}</p>
+            <button
+              onClick={signOut}
+              className="rounded-xl bg-black text-white px-4 py-2"
+            >
+              Sign Out
+            </button>
+          </>
+        ) : (
+          <p>No user data available</p>
+        )}
       </div>
     </div>
-  )
+  );
 }
