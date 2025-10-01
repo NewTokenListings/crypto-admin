@@ -1,34 +1,49 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Home from './pages/Home.jsx'
-import Login from './pages/admin/Login.jsx'
-import AdminLayout from './layouts/AdminLayout.jsx'
-import Dashboard from './pages/admin/Dashboard.jsx'
-import Users from './pages/admin/Users.jsx'
-import Transactions from './pages/admin/Transactions.jsx'
-import ProtectedRoute from './components/ProtectedRoute.jsx'
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/admin/Login";
+import Dashboard from "./pages/admin/Dashboard";
+import Users from "./pages/admin/Users";
+import Transactions from "./pages/admin/Transactions";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AuthDebug from "./pages/admin/AuthDebug"; // 👈 new debug page
 
 export default function App() {
   return (
     <Routes>
+      {/* Public routes */}
       <Route path="/" element={<Home />} />
-
       <Route path="/admin/login" element={<Login />} />
 
+      {/* Protected admin routes */}
       <Route
-        path="/admin"
+        path="/admin/dashboard"
         element={
           <ProtectedRoute>
-            <AdminLayout />
+            <Dashboard />
           </ProtectedRoute>
         }
-      >
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="users" element={<Users />} />
-        <Route path="transactions" element={<Transactions />} />
-      </Route>
+      />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <Users />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin/transactions"
+        element={
+          <ProtectedRoute>
+            <Transactions />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Debug route (always accessible) */}
+      <Route path="/admin/_debug" element={<AuthDebug />} />
     </Routes>
-  )
+  );
 }
