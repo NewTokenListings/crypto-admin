@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { supabase, logSupabaseBoot } from "../../supabaseClient";
+import { supabase } from "../../supabaseClient";
 
 export default function Categories() {
   const [loading, setLoading] = useState(true);
@@ -15,13 +15,9 @@ export default function Categories() {
   const [expandedTokenId, setExpandedTokenId] = useState(null);
   const [newCategory, setNewCategory] = useState("");
 
-  // Initial log for env + session
+  // Debug log on mount
   useEffect(() => {
-    logSupabaseBoot("Categories:boot");
-
-    supabase.auth.getSession().then(({ data }) => {
-      console.log("🔑 Supabase session", data.session);
-    });
+    console.log("📄 Rendering Categories.jsx");
   }, []);
 
   // Fetch distinct categories from tokens_public
@@ -48,11 +44,10 @@ export default function Categories() {
       } else {
         const uniq = [
           ...new Set(
-            (data ?? [])
-              .map(r => {
-                if (!r.category || !r.category.trim()) return "Uncategorized";
-                return r.category.trim();
-              })
+            (data ?? []).map((r) => {
+              if (!r.category || !r.category.trim()) return "Uncategorized";
+              return r.category.trim();
+            })
           ),
         ].sort((a, b) => a.localeCompare(b));
         setCategories(uniq);
@@ -90,8 +85,7 @@ export default function Categories() {
       setTokensError(error.message ?? "Unknown error");
       setTokens([]);
     } else {
-      // filter client-side to group Uncategorized
-      const filtered = (data ?? []).filter(t => {
+      const filtered = (data ?? []).filter((t) => {
         const cat = t.category && t.category.trim() ? t.category.trim() : "Uncategorized";
         return cat === category;
       });
@@ -120,7 +114,7 @@ export default function Categories() {
     }
 
     if (!categories.includes(label)) {
-      setCategories(prev => [...prev, label].sort((a, b) => a.localeCompare(b)));
+      setCategories((prev) => [...prev, label].sort((a, b) => a.localeCompare(b)));
     }
     setNewCategory("");
   }
@@ -154,7 +148,7 @@ export default function Categories() {
 
       {!loading && !hasCategories && !loadError && (
         <div className="rounded border border-dashed p-6 text-gray-600">
-          No categories found. Approve tokens into <code>tokens_public</code> with categories, 
+          No categories found. Approve tokens into <code>tokens_public</code> with categories,
           or use “+ Add Category” to create a placeholder row.
         </div>
       )}
@@ -237,7 +231,7 @@ export default function Categories() {
                           <tr className="bg-gray-50">
                             <td colSpan={6} className="p-3">
                               <pre className="text-xs bg-white border rounded p-3 overflow-auto">
-{JSON.stringify(t, null, 2)}
+                                {JSON.stringify(t, null, 2)}
                               </pre>
                             </td>
                           </tr>
