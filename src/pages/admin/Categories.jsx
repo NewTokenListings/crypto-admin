@@ -1,136 +1,162 @@
-import React from "react";
-import { supabase } from "../../supabaseClient";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabaseClient"; // ✅ fixed import path
 
-function CategoriesSidebar({ categories, onSelect }) {
-  return (
-    <div className="w-64 bg-gray-900 text-white h-full p-4">
-      <h2 className="text-lg font-bold mb-4">Categories</h2>
-      <ul>
-        {categories.map((cat) => (
-          <li key={cat.id}>
-            <button
-              onClick={() => onSelect(cat.name)}
-              className="w-full text-left px-2 py-1 rounded hover:bg-gray-700"
-            >
-              {cat.name}
-            </button>
-          </li>
-        ))}
-      </ul>
-      <button
-        className="mt-4 bg-green-600 px-3 py-1 rounded"
-        onClick={() => {
-          const newName = prompt("Enter new category name:");
-          if (newName) {
-            supabase.from("categories").insert({ name: newName }).then(() => {
-              window.location.reload(); // quick refresh after insert
-            });
-          }
-        }}
-      >
-        + Add Category
-      </button>
-    </div>
-  );
-}
+function Categories() {
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [tokens, setTokens] = useState([]);
+  const [expandedToken, setExpandedToken] = useState(null);
+  const [newCategory, setNewCategory] = useState("");
 
-function TokensTable({ tokens }) {
-  const [expanded, setExpanded] = React.useState(null);
+  // Fetch categories (distinct values from tokens table)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase.from("tokens").select("category");
 
-  return (
-    <div className="p-4 flex-1 overflow-y-auto">
-      <h2 className="text-lg font-bold mb-4">Tokens</h2>
-      <table className="w-full border">
-        <thead>
-          <tr className="bg-gray-100 text-left">
-            <th className="p-2">Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tokens.map((token) => (
-            <React.Fragment key={token.id}>
-              <tr
-                onClick={() =>
-                  setExpanded(expanded === token.id ? null : token.id)
-                }
-                className="cursor-pointer hover:bg-gray-50"
-              >
-                <td className="p-2">{token.name}</td>
-              </tr>
-              {expanded === token.id && (
-                <tr>
-                  <td colSpan="1" className="p-4 bg-gray-50">
-                    {/* Styled token details */}
-                    <div className="mb-2">
-                      {token.logo_url && (
-                        <img
-                          src={token.logo_url}
-                          alt=""
-                          className="w-12 h-12 mb-2"
-                        />
-                      )}
-                      <h3 className="font-bold">
-                        {token.name} ({token.symbol})
-                      </h3>
-                      <p>Price: ${token.price_usd}</p>
-                      <p>Market Cap: ${token.market_cap}</p>
-                      <p>Category: {token.category}</p>
-                      {token.website && (
-                        <a
-                          href={token.website}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-blue-600 underline"
-                        >
-                          Website
-                        </a>
-                      )}
-                    </div>
+      if (error) {
+        console.error("Error fetching categories:", error);
+      } else {
+        const uniqueCategories = [...new Set(data.map((row) => row.category))];
+        setCategories(uniqueCategories.filter((c) => c)); // remove null/empty
+      }
+    };
 
-                    {/* Raw JSON toggle */}
-                    <details>
-                      <summary className="cursor-pointer text-blue-600">
-                        Show raw JSON
-                      </summary>
-                      <pre className="bg-black text-green-400 p-2 text-sm overflow-x-auto">
-                        {JSON.stringify(token, null, 2)}
-                      </pre>
-                    </details>
-                  </td>
-                </tr>
-              )}
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-export default function CategoriesPage() {
-  const [categories, setCategories] = React.useState([]);
-  const [tokens, setTokens] = React.useState([]);
-  const [selectedCat, setSelectedCat] = React.useState(null);
-
-  React.useEffect(() => {
-    // Fetch categories
-    supabase.from("categories").select("*").then(({ data }) => setCategories(data || []));
+    fetchCategories();
   }, []);
 
-  React.useEffect(() => {
-    if (selectedCat) {
-      supabase
-        .from("tokens")
-        .select("*")
-        .eq("category", selectedCat)
-        .then(({ data }) => setTokens(data || []));
+  // Fetch tokens for a selected category
+  const fetchTokens = async (category) => {
+    setSelectedCategory(category);
+    const { data, error } = await supabase
+      .from("tokens")
+      .select("*")
+      .eq("category", category);
+
+    if (error) {
+      console.error("Error fetching tokens:", error);
+    } else {
+      setTokens(data);
     }
-  }, [selectedCat]);
+  };
+
+  // Create a new category
+  const handleCreateCategory = async () => {
+    if (!newCategory.trim()) return;
+
+    const { error } = await supabase.from("tokens").insert([
+      {
+        name: `placeholder-${Date.now()}`,
+        category: newCategory.trim(),
+      },
+    ]);
+
+    if (error) {
+      console.error("Error creating category:", error);
+    } else {
+      setCategories((prev) => [...prev, newCategory.trim()]);
+      setNewCategory("");
+    }
+  };
 
   return (
-    <div className="flex h-screen">
-      <CategoriesSidebar categories={categories} onSelect={setSelectedCat} />
-      <TokensTable tokens={tokens} />
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Categories</h1>
+
+      {/* New Category Input */}
+      <div className="flex items-center mb-6">
+        <input
+          type="text"
+          placeholder="New category name"
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          className="border p-2 rounded mr-2"
+        />
+        <button
+          onClick={handleCreateCategory}
+          className="bg-green-600 text-white px-4 py-2 rounded"
+        >
+          + Add Category
+        </button>
+      </div>
+
+      {/* Category List */}
+      <div className="flex gap-3 flex-wrap mb-6">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => fetchTokens(cat)}
+            className={`px-4 py-2 rounded ${
+              selectedCategory === cat
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Token List */}
+      {selectedCategory && (
+        <div>
+          <h2 className="text-xl font-semibold mb-4">
+            Tokens in "{selectedCategory}"
+          </h2>
+
+          <table className="w-full border-collapse border border-gray-400">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-2">Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tokens.map((token) => (
+                <React.Fragment key={token.id}>
+                  <tr
+                    className="cursor-pointer hover:bg-gray-100"
+                    onClick={() =>
+                      setExpandedToken(
+                        expandedToken === token.id ? null : token.id
+                      )
+                    }
+                  >
+                    <td className="border p-2">{token.name}</td>
+                  </tr>
+
+                  {/* Expanded details */}
+                  {expandedToken === token.id && (
+                    <tr>
+                      <td className="border p-4 bg-gray-50" colSpan={1}>
+                        <h3 className="font-semibold">Details</h3>
+                        <div className="mt-2">
+                          {/* All fields nicely listed */}
+                          {Object.entries(token).map(([key, value]) => (
+                            <p key={key}>
+                              <strong>{key}:</strong> {String(value)}
+                            </p>
+                          ))}
+                        </div>
+
+                        {/* Raw JSON */}
+                        <details className="mt-4">
+                          <summary className="cursor-pointer text-blue-600">
+                            Show raw JSON
+                          </summary>
+                          <pre className="text-sm bg-black text-green-400 p-2 rounded mt-2 overflow-x-auto">
+                            {JSON.stringify(token, null, 2)}
+                          </pre>
+                        </details>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
+
+export default Categories;
