@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import { supabase } from '../supabaseClient'
 
 export function useSupabaseTable({ table, select = '*', order = { column: 'created_at', ascending: false } }) {
   const [data, setData] = useState([])
