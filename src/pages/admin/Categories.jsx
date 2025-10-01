@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabaseClient"; // ✅ fixed import path
+import { supabase } from "../../supabaseClient";
 
 function Categories() {
   const [categories, setCategories] = useState([]);
