@@ -1,36 +1,20 @@
-import React from "react";
-import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
+// src/components/ProtectedRoute.jsx
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-function ProtectedRoute({ children }) {
-  const { session, initializing } = useAuth();
-  const location = useLocation();
+export default function ProtectedRoute({ children }) {
+  const { user, initializing } = useAuth();
 
-  console.log("🔒 ProtectedRoute check:", { initializing, session });
+  console.log("🔎 ProtectedRoute debug:", { user, initializing });
 
-  // While Supabase is still checking session → show loading
   if (initializing) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Loading authentication...</p>
-      </div>
-    );
+    return <div className="p-4">Loading...</div>;
   }
 
-  // If no session → redirect to login
-  if (!session) {
-    console.warn("⚠️ No session found → redirecting to /admin/login");
-    return (
-      <Navigate
-        to="/admin/login"
-        replace
-        state={{ from: location.pathname }}
-      />
-    );
+  if (!user) {
+    console.warn("⚠️ No user found, redirecting to login...");
+    return <Navigate to="/admin/login" replace />;
   }
 
-  // Otherwise allow access
   return children;
 }
-
-export default ProtectedRoute;

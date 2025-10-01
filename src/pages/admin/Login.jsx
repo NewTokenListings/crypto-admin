@@ -1,52 +1,44 @@
-import React from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
-import { supabase } from "../../lib/supabaseClient";
+// src/pages/admin/Login.jsx
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../../supabaseClient";
 
-function Login() {
+export default function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Redirect back to original page if user was redirected
-  const from = location.state?.from || "/admin/dashboard";
+  useEffect(() => {
+    // When Supabase redirects back with the access_token in the hash
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        console.log("SIGNED_IN", session);
+        navigate("/admin/categories");
+      }
+    });
 
-  const handleGoogleLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/admin/dashboard`,
-        },
-      });
+    // If we’re already logged in, skip login
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        console.log("Already signed in:", session);
+        navigate("/admin/categories");
+      }
+    });
+  }, [navigate]);
 
-      if (error) throw error;
-
-      console.log("✅ Google login started...");
-    } catch (err) {
-      console.error("❌ Google login error:", err.message);
-      alert("Login failed: " + err.message);
-    }
+  const handleLogin = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+    });
+    if (error) console.error("Error logging in:", error.message);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
-      <div className="p-6 bg-gray-900 rounded-xl shadow-lg w-96 text-center">
-        <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
-
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition"
-        >
-          Sign in with Google
-        </button>
-
-        <p className="mt-4">
-          <Link to="/" className="text-blue-400 hover:underline">
-            ← Back to public site
-          </Link>
-        </p>
-      </div>
+    <div className="flex items-center justify-center h-screen">
+      <button
+        onClick={handleLogin}
+        className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
+      >
+        Sign in with Google
+      </button>
     </div>
   );
 }
-
-export default Login;
