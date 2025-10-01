@@ -1,39 +1,52 @@
-import { useNavigate, useLocation, Link } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-import { supabase } from '../../lib/supabaseClient'
+import React from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { supabase } from "../../lib/supabaseClient";
 
-export default function Login() {
-  const { session } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const redirectTo = location.state?.from?.pathname || '/admin/dashboard'
+function Login() {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  async function signInWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-    })
-    if (error) alert(error.message)
-  }
+  // Redirect back to original page if user was redirected
+  const from = location.state?.from || "/admin/dashboard";
 
-  if (session) {
-    navigate(redirectTo, { replace: true })
-    return null
-  }
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/admin/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+
+      console.log("✅ Google login started...");
+    } catch (err) {
+      console.error("❌ Google login error:", err.message);
+      alert("Login failed: " + err.message);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow p-6 text-center">
+    <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
+      <div className="p-6 bg-gray-900 rounded-xl shadow-lg w-96 text-center">
         <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
+
         <button
-          onClick={signInWithGoogle}
-          className="w-full rounded-xl bg-black text-white py-2"
+          onClick={handleGoogleLogin}
+          className="w-full px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200 transition"
         >
           Sign in with Google
         </button>
-        <Link to="/" className="text-sm inline-block mt-4 underline">
-          ← Back to public site
-        </Link>
+
+        <p className="mt-4">
+          <Link to="/" className="text-blue-400 hover:underline">
+            ← Back to public site
+          </Link>
+        </p>
       </div>
     </div>
-  )
+  );
 }
+
+export default Login;
