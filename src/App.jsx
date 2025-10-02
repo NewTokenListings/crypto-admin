@@ -8,25 +8,51 @@ import Users from "./pages/admin/Users.jsx";
 import Transactions from "./pages/admin/Transactions.jsx";
 import Categories from "./pages/admin/Categories.jsx";
 
-// import ProtectedRoute from "./components/ProtectedRoute.jsx"; // ⛔ bypassed
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 function App() {
   return (
     <ErrorBoundary>
       <Routes>
-        {/* Public route */}
+        {/* Auth routes */}
         <Route path="/admin/login" element={<Login />} />
 
-        {/* Debug route: mount Categories directly without auth */}
-        <Route path="/admin/categories" element={<Categories />} />
+        {/* Protected routes */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute>
+              <Users />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/transactions"
+          element={
+            <ProtectedRoute>
+              <Transactions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/categories"
+          element={
+            <ProtectedRoute>
+              <Categories />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Still keep other protected routes behind ProtectedRoute */}
-        <Route path="/admin/dashboard" element={<Dashboard />} />
-        <Route path="/admin/users" element={<Users />} />
-        <Route path="/admin/transactions" element={<Transactions />} />
-
-        {/* Fallbacks */}
+        {/* Public + fallback */}
         <Route path="/" element={<ComingSoon />} />
         <Route path="*" element={<ComingSoon />} />
       </Routes>
