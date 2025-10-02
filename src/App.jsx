@@ -1,6 +1,6 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/admin/login.jsx";
+import LoginPage from "./pages/admin/Login.jsx";
 import Categories from "./pages/admin/Categories.jsx";
 import NotFound from "./pages/admin/NotFound.jsx";
 
