@@ -1,27 +1,21 @@
-<!-- public/404.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>404 - Redirecting…</title>
+    <meta http-equiv="refresh" content="0; url=/" />
+    <title>Redirecting...</title>
     <script>
-      // GitHub Pages SPA redirect fix
+      // For GitHub Pages SPA fallback
       (function() {
         var redirect = sessionStorage.redirect;
-        if (redirect) {
-          sessionStorage.removeItem("redirect");
-          window.history.replaceState(null, null, redirect);
+        delete sessionStorage.redirect;
+        if (redirect && redirect != location.href) {
+          history.replaceState(null, null, redirect);
         }
       })();
     </script>
   </head>
   <body>
-    <p>Redirecting…</p>
-    <script>
-      // Handle deep links by redirecting back to index.html
-      sessionStorage.redirect = location.pathname + location.search + location.hash;
-      window.location.replace("/");
-    </script>
+    Redirecting...
   </body>
 </html>
