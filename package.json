@@ -2,23 +2,26 @@
   "name": "crypto-admin",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "postbuild": "cp dist/index.html dist/404.html && cp public/CNAME dist/CNAME",
     "preview": "vite preview",
     "predeploy": "npm run build",
+    "postbuild": "cp dist/index.html dist/404.html && cp public/CNAME dist/CNAME",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.8",
+    "@supabase/supabase-js": "^2.42.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.22.3"
+    "react-router-dom": "^6.28.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "gh-pages": "^6.0.0",
-    "vite": "^7.1.7"
+    "@vitejs/plugin-react": "^4.3.2",
+    "eslint": "^9.13.0",
+    "eslint-plugin-react": "^7.37.2",
+    "gh-pages": "^6.1.1",
+    "vite": "^7.1.8"
   }
 }
