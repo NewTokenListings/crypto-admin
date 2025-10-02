@@ -8,37 +8,23 @@ export default function Categories() {
   const [newCategory, setNewCategory] = useState("");
 
   useEffect(() => {
-    console.log("📄 Rendering Categories.jsx");
-
-    // Debug logs for env vars
-    console.log("🔑 Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
-    console.log(
-      "🔑 Supabase Key present?:",
-      !!import.meta.env.VITE_SUPABASE_ANON_KEY
-    );
-
     const loadCategories = async () => {
       try {
-        console.log("📡 Fetching categories from Supabase...");
-
         const { data, error } = await supabase
-          .from("tokens_public")
+          .from("tokens")
           .select("category")
           .not("category", "is", null)
           .neq("category", "");
 
         if (error) {
-          console.error("❌ Supabase query error:", error);
           setError(error.message);
         } else {
-          console.log("✅ Supabase query success:", data);
           const uniqueCategories = [
             ...new Set(data.map((row) => row.category)),
           ];
           setCategories(uniqueCategories);
         }
       } catch (err) {
-        console.error("💥 Exception loading categories:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -52,13 +38,13 @@ export default function Categories() {
     if (!newCategory) return;
     try {
       const { error } = await supabase
-        .from("tokens_public")
+        .from("tokens")
         .insert([{ category: newCategory }]);
       if (error) throw error;
+
       setCategories([...categories, newCategory]);
       setNewCategory("");
     } catch (err) {
-      console.error("❌ Failed to add category:", err);
       setError(err.message);
     }
   };
