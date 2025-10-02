@@ -5,7 +5,7 @@
   "type": "module",
 "scripts": {
   "dev": "vite",
-  "build": "vite build && cp dist/index.html dist/404.html && cp public/CNAME dist/CNAME",
+  "build": "vite build && cp dist/index.html dist/404.html && echo \"<script>location.replace('/?redirect='+location.pathname+location.search+location.hash)</script>\" >> dist/404.html && cp public/CNAME dist/CNAME",
   "preview": "vite preview",
   "predeploy": "npm run build",
   "deploy": "gh-pages -d dist"
