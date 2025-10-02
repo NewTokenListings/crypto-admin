@@ -1,21 +1,17 @@
-// src/App.jsx
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/admin/Login.jsx";
 import Categories from "./pages/admin/Categories.jsx";
-import NotFound from "./pages/admin/NotFound.jsx";
 
 function App() {
+  console.log("✅ App is rendering");
   return (
     <BrowserRouter>
       <Routes>
-        {/* redirect root → login */}
         <Route path="/" element={<Navigate to="/admin/login" replace />} />
-
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/admin/categories" element={<Categories />} />
-
-        {/* catch-all 404 */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>
     </BrowserRouter>
   );
