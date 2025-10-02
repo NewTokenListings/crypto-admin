@@ -1,39 +1,22 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <meta charset="utf-8"/>
-    <meta name="robots" content="noindex">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redirecting...</title>
-    <script>
-      // SPA-friendly 404 handler:
-      // - fetch index.html
-      // - inject it into the document so client-side router can handle the original path
-      (async function(){
-        try {
-          const path = window.location.pathname + window.location.search + window.location.hash;
-          // Try fetching index.html from the site root
-          const resp = await fetch('/index.html', { cache: 'no-store' });
-          if (!resp.ok) {
-            // If we can't fetch index.html, at least try a safe redirect to root
-            window.location.replace('/');
-            return;
-          }
-          const html = await resp.text();
-          // Replace current document with the app's index.html content
-          document.open();
-          document.write(html);
-          document.close();
-          // Keep the original path in the address bar for the SPA router to read
-          history.replaceState({}, '', path);
-        } catch (err) {
-          // Fallback: redirect to root
-          console.error('404 -> failed to load index.html', err);
-          window.location.replace('/');
+    <script type="text/javascript">
+      // GitHub Pages SPA redirect hack
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
         }
       })();
     </script>
   </head>
   <body>
-    Redirecting...
+    <div>Redirecting...</div>
+    <script type="text/javascript" src="/index.js"></script>
   </body>
 </html>
