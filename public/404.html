@@ -1,12 +1,27 @@
+<!-- public/404.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <script type="text/javascript">
-      // Redirect all 404s to index.html (SPA fallback)
-      var redirectTo = window.location.protocol + "//" + window.location.host + "/index.html";
-      window.location.replace(redirectTo);
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Redirecting…</title>
+    <script>
+      // GitHub Pages SPA redirect fix
+      (function() {
+        var redirect = sessionStorage.redirect;
+        if (redirect) {
+          sessionStorage.removeItem("redirect");
+          window.history.replaceState(null, null, redirect);
+        }
+      })();
     </script>
   </head>
-  <body></body>
+  <body>
+    <p>Redirecting…</p>
+    <script>
+      // Handle deep links by redirecting back to index.html
+      sessionStorage.redirect = location.pathname + location.search + location.hash;
+      window.location.replace("/");
+    </script>
+  </body>
 </html>

@@ -1,8 +1,8 @@
 {
-  "name": "vite-react-starter",
-  "version": "0.0.0",
+  "name": "crypto-admin",
   "private": true,
-  "homepage": "https://admin.newtokenlistings.com",
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
