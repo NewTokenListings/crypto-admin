@@ -1,22 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Redirecting...</title>
+    <meta charset="utf-8">
     <script type="text/javascript">
-      // GitHub Pages SPA redirect hack
-      (function() {
-        var redirect = sessionStorage.redirect;
-        delete sessionStorage.redirect;
-        if (redirect && redirect !== location.href) {
-          history.replaceState(null, null, redirect);
-        }
-      })();
+      // Redirect all 404s to index.html (SPA fallback)
+      var redirectTo = window.location.protocol + "//" + window.location.host + "/index.html";
+      window.location.replace(redirectTo);
     </script>
   </head>
-  <body>
-    <div>Redirecting...</div>
-    <script type="text/javascript" src="/index.js"></script>
-  </body>
+  <body></body>
 </html>
