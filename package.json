@@ -3,14 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "predeploy": "npm run build",
-    "postbuild": "cp dist/index.html dist/404.html && cp public/CNAME dist/CNAME",
-    "deploy": "gh-pages -d dist"
-  },
+"scripts": {
+  "dev": "vite",
+  "build": "vite build && cp dist/index.html dist/404.html && cp public/CNAME dist/CNAME",
+  "preview": "vite preview",
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d dist"
+},
   "dependencies": {
     "@supabase/supabase-js": "^2.42.3",
     "react": "^18.3.1",
