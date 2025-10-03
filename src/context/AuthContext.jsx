@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../supabaseClient.js";
+import { supabase } from "../supabaseClient";
 
 const AuthContext = createContext();
 
@@ -9,18 +9,16 @@ export function AuthProvider({ children }) {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    // Get the current session on load
-    const getSession = async () => {
-      const { data } = await supabase.auth.getSession();
+    // Load session on mount
+    supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setInitializing(false);
-    };
-    getSession();
+    });
 
-    // Listen for changes
+    // Listen for session changes
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
       }
@@ -31,7 +29,7 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // Clean up OAuth hash (#access_token, etc.)
+  // Clean up OAuth redirect hash
   useEffect(() => {
     if (window.location.hash.includes("access_token")) {
       const cleanUrl = window.location.origin + "/admin";
@@ -42,9 +40,7 @@ export function AuthProvider({ children }) {
   const loginWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/admin`, // safe fallback
-      },
+      options: { redirectTo: `${window.location.origin}/admin` },
     });
   };
 
@@ -54,15 +50,13 @@ export function AuthProvider({ children }) {
     setSession(null);
   };
 
-  const value = {
-    user,
-    session,
-    initializing,
-    loginWithGoogle,
-    logout,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{ user, session, initializing, loginWithGoogle, logout }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

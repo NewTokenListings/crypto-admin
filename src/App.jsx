@@ -1,33 +1,41 @@
-import React, { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import LoginPage from "./pages/admin/Login.jsx";
-import Categories from "./pages/admin/Categories.jsx";
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/admin/Login";
+import Dashboard from "./pages/admin/Dashboard";
+import Categories from "./pages/admin/Categories";
+import Users from "./pages/admin/Users";
+import Transactions from "./pages/admin/Transactions";
+import NotFound from "./pages/admin/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLayout from "./layouts/AdminLayout";
+import Home from "./pages/Home";
 
-function RedirectHandler() {
-  const navigate = useNavigate();
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const redirect = params.get("redirect");
-    if (redirect) {
-      navigate(redirect, { replace: true });
-    }
-  }, [navigate]);
-  return null;
-}
-
-function App() {
+export default function App() {
   console.log("✅ App is rendering");
+
   return (
-    <BrowserRouter>
-      <RedirectHandler />
-      <Routes>
-        <Route path="/" element={<Navigate to="/admin/login" replace />} />
-        <Route path="/admin/login" element={<LoginPage />} />
-        <Route path="/admin/categories" element={<Categories />} />
-        <Route path="*" element={<div>404 - Page Not Found</div>} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={<Home />} />
+      <Route path="/admin/login" element={<Login />} />
+
+      {/* Protected Admin Routes */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<Dashboard />} />
+        <Route path="categories" element={<Categories />} />
+        <Route path="users" element={<Users />} />
+        <Route path="transactions" element={<Transactions />} />
+      </Route>
+
+      {/* Catch-all */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
-
-export default App;
