@@ -11,7 +11,7 @@ function LoginPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/admin/categories", // where to go after login
+        redirectTo: window.location.origin + "/admin/categories", // redirect after login
       },
     });
 
