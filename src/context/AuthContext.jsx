@@ -31,11 +31,10 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  // 👇 If user comes back with #access_token in URL (OAuth flow),
-  // clean it up and redirect into /admin/categories
+  // Clean up OAuth hash (#access_token, etc.)
   useEffect(() => {
     if (window.location.hash.includes("access_token")) {
-      const cleanUrl = window.location.origin + "/admin/categories";
+      const cleanUrl = window.location.origin + "/admin";
       window.history.replaceState({}, document.title, cleanUrl);
     }
   }, []);
@@ -44,8 +43,8 @@ export function AuthProvider({ children }) {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/admin/categories`
-      }
+        redirectTo: `${window.location.origin}/admin`, // safe fallback
+      },
     });
   };
 

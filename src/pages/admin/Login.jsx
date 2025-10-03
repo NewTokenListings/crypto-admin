@@ -1,43 +1,24 @@
 import React from "react";
-import { supabase } from "../../supabaseClient";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
-function LoginPage() {
-  const handleGoogleLogin = async () => {
-    if (!supabase) {
-      alert("Supabase is not configured. Please check your .env file.");
-      return;
+export default function Login() {
+  const { loginWithGoogle, session } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const from = location.state?.from?.pathname || "/admin";
+
+  React.useEffect(() => {
+    if (session) {
+      navigate(from, { replace: true });
     }
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin + "/admin/categories", // redirect after login
-      },
-    });
-
-    if (error) {
-      console.error("Google login error:", error.message);
-      alert("Login failed: " + error.message);
-    }
-  };
+  }, [session, from, navigate]);
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>🔑 Admin Login</h1>
-      <p>Welcome to the Crypto Admin Panel. Please log in with Google.</p>
-      <button
-        onClick={handleGoogleLogin}
-        style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          fontSize: "16px",
-          cursor: "pointer",
-        }}
-      >
-        Sign in with Google
-      </button>
+    <div style={{ textAlign: "center", marginTop: "4rem" }}>
+      <h1>Admin Login</h1>
+      <button onClick={loginWithGoogle}>Sign in with Google</button>
     </div>
   );
 }
-
-export default LoginPage;
