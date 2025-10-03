@@ -1,3 +1,4 @@
+// src/context/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
@@ -9,33 +10,34 @@ export function AuthProvider({ children }) {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    // Load session on mount
+    let mounted = true;
+
     supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setInitializing(false);
     });
 
-    // Listen for session changes
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-      }
-    );
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, s) => {
+      if (!mounted) return;
+      setSession(s);
+      setUser(s?.user ?? null);
+    });
 
     return () => {
-      listener.subscription.unsubscribe();
+      mounted = false;
+      listener?.subscription?.unsubscribe?.();
     };
   }, []);
 
-  // Clean up OAuth redirect hash
+  // Clean up OAuth hash once session is present
   useEffect(() => {
-    if (window.location.hash.includes("access_token")) {
+    if (session && window.location.hash.includes("access_token")) {
       const cleanUrl = window.location.origin + "/admin";
       window.history.replaceState({}, document.title, cleanUrl);
     }
-  }, []);
+  }, [session]);
 
   const loginWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({

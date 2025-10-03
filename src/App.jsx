@@ -1,5 +1,6 @@
+// src/App.jsx
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import Categories from "./pages/admin/Categories";
@@ -9,17 +10,17 @@ import NotFound from "./pages/admin/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import Home from "./pages/Home";
+import AuthDebug from "./pages/admin/AuthDebug";
 
 export default function App() {
-  console.log("✅ App is rendering");
-
   return (
     <Routes>
-      {/* Public routes */}
+      {/* Public */}
       <Route path="/" element={<Home />} />
       <Route path="/admin/login" element={<Login />} />
+      <Route path="/admin/auth-debug" element={<AuthDebug />} />
 
-      {/* Protected Admin Routes */}
+      {/* Protected */}
       <Route
         path="/admin"
         element={
@@ -34,7 +35,6 @@ export default function App() {
         <Route path="transactions" element={<Transactions />} />
       </Route>
 
-      {/* Catch-all */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
